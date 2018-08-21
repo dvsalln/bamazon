@@ -1,7 +1,7 @@
 {
   "name": "bamazon",
   "version": "1.0.0",
-  "description": "amazon like cli app",
+  "description": "Bamazon is an interactive shopping node app that uses MySQL and Node.JS. I also used the CLI-Table 2 NPM to display the table in an easy to read fashion for the customer.",
   "main": "bamazoncustomer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/dvsalln/bamazon/issues"
   },
-  "homepage": "https://github.com/dvsalln/bamazon#readme",
-  "dependencies": {
-    "nodemon": "^1.18.3"
-  }
+  "homepage": "https://github.com/dvsalln/bamazon#readme"
 }

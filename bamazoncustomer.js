@@ -1,117 +1,99 @@
-// Step 1 - npm install mysql and either Prompt or Inquirer
-var mysql = require('mysql');
-var inquirer = require('inquirer');
-var prompt = require('prompt');
-var filesystem = require('fs');
-// var sqlPassword = require('./password.js');
 
-// Step 5 - create database in MySQL workbench and then create the connection here
-var connection = mysql.createConnection({
+
+const mysql = require("mysql");
+//const cTable = require('console.table');
+const inquirer = require(`inquirer`);
+const divider = `\n------------------------------------------------------------\n`;
+
+
+let connection = mysql.createConnection({
     host: "localhost",
-    port: 3000,
-    user: "root", 
-    password: "root", 
-    database: "Bamazon"
+    port: 3306,
+    user: "root",
+    password: "root",
+    database: "bamazon",
 });
 
-// Step 6 - start the connection to the database
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-});
 
-// Step 7 - call the first function to start it
-buyProduct();
+const showWelcome = () => {
+    console.log(`${divider}\t\tBAMAZON SUPER${divider}`);
+}
 
-// Step 8 - displays products in database table, and then ask user which product he wants to purchase - write hoisted functions so they can be defined later in the file
-function buyProduct() {
-    connection.query('SELECT * FROM Products', function(err, res){
-        // console.log(res);
-
-        // display products and price to user
-        for (var i = 0; i < res.length; i++) {
-            console.log('Item: ' + res[i].ProductName + ' | Price: ' + res[i].Price + ' | Stock: ' + res[i].StockQuantity);
-        }
-        
-
-        // ask user questions for purchase 
-        inquirer.prompt([{
-            // ask user to choose a product to purchase
-            name: "choice",
-            type: "rawlist",
-            message: "What would you like to buy?",
-            choices: function(value) {
-                var choiceArray = [];
-                for (var i = 0; i < res.length; i++) {
-                    choiceArray.push(res[i].ProductName);
-                }
-                return choiceArray;
-            }
-        }, {
-            // ask user to enter a quantity to purchase
-            name: "quantity",
-            type: "input",
-            message: "How many would you like to buy?",
-            validate: function(value) {
-                if (isNaN(value) == false) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }]).then(function(answer) {
-            // grabs the entire object for the product the user chose
-            for (var i = 0; i < res.length; i++) {
-                if (res[i].ProductName == answer.choice) {
-                    var chosenItem = res[i];
-                }
-            }
-            // shows the entire object of the product chosen
-            // console.log(chosenItem);
-                             
-            // calculate remaining stock if purchase occurs
-            var updateStock = parseInt(chosenItem.StockQuantity) - parseInt(answer.quantity);
-
-            // if customer wants to purchase more than available in stock, user will be asked if he wants to make another purchase
-            if (chosenItem.StockQuantity < parseInt(answer.quantity)) {
-                console.log("Insufficient quantity!");
-
-                again();
-            }
-            // if the customer wants to purchase an amount that is in stock, the remaining stock quantity will be updated in the database and the price presented to the customer
-            else {
-                connection.query("UPDATE Products SET ? WHERE ?", [{StockQuantity: updateStock}, {ItemId: chosenItem.ItemId}], function(err, res) {
-                    console.log("Purchase successful!");
-
-                    var Total = (parseInt(answer.quantity)*chosenItem.Price).toFixed(2);
-                    console.log("Your total is $" + Total);
-
-                    again();
-                });
-            }
-
-        }); // .then of inquirer prompt
-                         
-    }); // first connection.query of the database
-    
-} // buyProduct function
-
-
-
-
-function again() {
-    inquirer.prompt({
-        // ask user if he wants to purchase another item
-        name: "repurchase",
-        type: "list",
-        choices: ["Yes", "No"],
-        message: "Would you like to purchase another item?"
-    }).then(function(answer) {
-        if (answer.repurchase == "Yes") {
-            buyProduct();
-        }
-        else {
-            console.log("Thanks for shopping for us. Have a great day!")
-        }
+const showProducts = () => {
+    let query = "SELECT item_id, product_name, price FROM products";
+    connection.query(query, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        showMenu();
     });
 }
+
+const showMenu = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Product ID: ",
+            name: "id",
+            validate: (ui) => {
+                return isNaN(ui) ? "Error: ID must be a number" : true;
+            }
+        },
+        {
+            type: "input",
+            message: "Quantity: ",
+            name: "quantity",
+            validate: (ui) => {
+                return isNaN(ui) ? "Error: Quantity must be a number" : true;
+            }
+        }
+    ]).then(input => {
+        processOrder(input);
+    });
+}
+
+const processOrder = (input) => {
+
+    let query = `SELECT stock_quantity, price, product_sales FROM products WHERE item_id = ?`;
+    connection.query(query, [input.id], (err, data) => {
+        if (err) throw err;
+        let stock = parseInt(data[0].stock_quantity);
+        let quantity = parseInt(input.quantity);
+        let success = stock >= quantity;
+        if (success) {
+            console.log("Order Approved");
+            let productSales = parseFloat(data[0].product_sales);
+            let totalCost = parseFloat(data[0].price) * quantity;
+            query = "UPDATE products SET ?,? WHERE ?";
+            connection.query(query,
+                [
+                    {
+                        stock_quantity: stock - quantity
+                    },
+                    {
+                        product_sales: productSales ? productSales + totalCost : totalCost
+                    },
+                    {
+                        item_id: input.id
+                    }
+                ], (err, newData) => {
+                    if (err) throw err;
+                    totalCost = totalCost.toFixed(2);
+                    console.log(`Total Order Cost: \$${totalCost}`);
+                    console.log(divider);
+                });
+        }
+        else {
+            console.log("Insufficient stock!");
+            console.log(divider);
+        }
+        connection.end();
+    });
+}
+
+connection.connect(error => {
+    if (error) throw error;
+    showWelcome();
+    showProducts();
+    // connection.end();
+});
+

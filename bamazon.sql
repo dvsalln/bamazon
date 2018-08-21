@@ -1,26 +1,40 @@
--- Step 2 - execute the line below in MySQL workbench to create database
-CREATE DATABASE Bamazon;
 
--- Step 3 - use database create a table
-USE Bamazon;
+DROP DATABASE IF EXISTS bamazon;
+CREATE DATABASE bamazon;
+USE bamazon;
 
-CREATE TABLE `Products` (
-	`ItemId` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	`ProductName` VARCHAR(100) NULL,
-	`DepartmentName` VARCHAR(100) NULL,
-	`Price` DECIMAL(10,2) NULL,
-	`StockQuantity` INT NULL
+CREATE TABLE products(
+	item_id INT NOT NULL AUTO_INCREMENT,
+    product_name VARCHAR (50) NOT NULL,
+    department_name VARCHAR (50),
+    price FLOAT (8,3),
+    stock_quantity INT,
+    product_sales FLOAT(10,3),
+    PRIMARY KEY(item_id)
 );
 
+INSERT INTO products (product_name, department_name, price, stock_quantity)
+VALUES ("soap", "body care", 1.5, 100),
+	("diet coke", "sodas", .65, 500),
+    ("rice", "seeds", 3, 34),
+    ("jumbo shrimp", "frozen foods", 20, 300),
+    ("doritos", "snacks", 2.99, 15),
+    ("ground beef", "meats", 10, 20),
+    ("lime juice", "condiments", 4.99, 2),
+    ("sky vodka", "alcohol", 12.95, 80),
+    ("greek yogurt", "dairy", 6, 72),
+    ("salame", "cold cuts", 18, 50);
+    
+SELECT * FROM products;
+-- SELECT stock_quantity FROM products WHERE item_id = 2;
 
--- Step 4 - insert data into the table created in step 3
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Butter', 'Dairy', 3.48, 5);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Milk', 'Dairy', 3.18, 10);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Cookie', 'Bakery', 1.29, 15);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Donut', 'Bakery', 1.79, 7);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Coke', 'Beverage', 1.34, 20);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Pepsi', 'Beverage', 1.34, 15);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Ham', 'Meat', 1.49, 25);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Turkey', 'Meat', 1.19, 30);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Orange', 'Produce', 0.69, 40);
-INSERT INTO Products (ProductName, DepartmentName, Price, StockQuantity) VALUES ('Lemon', 'Produce', 0.39, 45);
+
+CREATE TABLE departments (
+	department_id INT NOT NULL AUTO_INCREMENT,
+    department_name VARCHAR(50),
+    over_head_costs FLOAT(10,3),
+    PRIMARY KEY(department_id)
+);
+    
+    
+		
