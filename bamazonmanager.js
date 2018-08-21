@@ -1,7 +1,6 @@
 
 
 const mysql = require("mysql");
-const cTable = require('console.table');
 const inquirer = require(`inquirer`);
 const divider = `\n------------------------------------------------------------\n`;
 
@@ -16,7 +15,7 @@ let connection = mysql.createConnection({
 
 
 const showWelcome = () => {
-    console.log(`${divider}\t\tBAMAZON SUPER - Manager View${divider}`);
+    console.log(`${divider}\t\tBAMAZON SUPERMARKET - Manager View${divider}`);
 }
 
 const showProducts = () => {

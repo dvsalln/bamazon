@@ -1,7 +1,5 @@
 
-
 const mysql = require("mysql");
-//const cTable = require('console.table');
 const inquirer = require(`inquirer`);
 const divider = `\n------------------------------------------------------------\n`;
 
@@ -16,8 +14,8 @@ let connection = mysql.createConnection({
 
 
 const showWelcome = () => {
-    console.log(`${divider}\t\tBAMAZON SUPER${divider}`);
-}
+    console.log(`${divider}\t\tBAMAZON SUPERMARKET${divider}`);
+};
 
 const showProducts = () => {
     let query = "SELECT item_id, product_name, price FROM products";
@@ -26,7 +24,7 @@ const showProducts = () => {
         console.table(data);
         showMenu();
     });
-}
+};
 
 const showMenu = () => {
     inquirer.prompt([
@@ -49,7 +47,7 @@ const showMenu = () => {
     ]).then(input => {
         processOrder(input);
     });
-}
+};
 
 const processOrder = (input) => {
 
@@ -88,7 +86,7 @@ const processOrder = (input) => {
         }
         connection.end();
     });
-}
+};
 
 connection.connect(error => {
     if (error) throw error;
@@ -96,4 +94,3 @@ connection.connect(error => {
     showProducts();
     // connection.end();
 });
-
